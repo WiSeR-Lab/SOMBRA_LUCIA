@@ -1,4 +1,6 @@
-# cp_attack
+# From Threat to Trust: Exploiting Attention Mechanisms for Attacks and Defenses in Cooperative Perception
+
+This repo contains the official implementation for the paper, including the attack SOMBRA and the defense LUCIA.
 
 ## Dataset and Model Download
 

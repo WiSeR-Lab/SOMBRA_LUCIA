@@ -74,9 +74,9 @@ class Att_w_Warp(nn.Module):
             cav_num = x.shape[0]
             x = x.view(cav_num, C, -1).permute(2, 0, 1) #  (H*W, cav_num, C), perform self attention on each pixel.
             h = self.att(x, x, x, trust_score=trust_score)
-            score = self.att.attn.permute(1,2,0).view(cav_num, cav_num, W, H)[0,...]
+            score = self.att.attn.permute(1,2,0).view(1, cav_num, W, H)[0,...]
             scores.append(score)
-            h = h.permute(1, 2, 0).view(cav_num, C, H, W)[0, ...]  # C, W, H before
+            h = h.permute(1, 2, 0).view(1, C, H, W)[0, ...]  # C, W, H before
             out.append(h)
 
         out = torch.stack(out)

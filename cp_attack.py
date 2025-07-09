@@ -61,6 +61,14 @@ def main():
     hypes = yaml_utils.load_yaml(None, opt)
     print('Dataset Building')
     number_stat = {'pred':[], 'gt':[], 'tp':[], 'fp':[]}
+
+    if opt.defense:
+        defense = 'lucia'
+    elif opt.robosac:
+        defense = 'robosac'
+    else:
+        defense = 'no_defense'
+
     # Specify attack to be targeted or mass object removal
     if opt.attack_mode == 'tor':
         try:
@@ -337,7 +345,7 @@ def main():
                                 opt.model_dir, opt.loss, opt.attack_mode, iter=opt.iter, lr=opt.lr)
 
     stat_pd = pd.DataFrame(number_stat)
-    result_name = os.path.join(opt.model_dir, '{}_result_iter{}_lr{}_loss{}.txt'.format(opt.attack_mode, opt.iter, opt.lr, opt.loss))
+    result_name = os.path.join(opt.model_dir, '{}_result_iter{}_lr{}_loss{}_defense_{}.txt'.format(opt.attack_mode, opt.iter, opt.lr, opt.loss, defense))
     f = open(result_name, "w")
     total_rows = stat_pd.shape[0]
     if opt.attack_mode == 'mor':
@@ -356,8 +364,10 @@ def main():
         f.write(f'ASR: {asr}')
         f.close()
 
-    df_filename = os.path.join(opt.model_dir, f'det_result_iter{opt.iter}_lr{opt.lr}_{opt.attack_mode}_{opt.loss}.csv')
+    df_filename = os.path.join(opt.model_dir, f'det_result_iter{opt.iter}_lr{opt.lr}_{opt.attack_mode}_{opt.loss}_defense_{defense}.csv')
     stat_pd.to_csv(df_filename, index=False)
+
+    print(f"Results saved to {result_name} and {df_filename}")
 
     if opt.show_sequence:
         vis.destroy_window()

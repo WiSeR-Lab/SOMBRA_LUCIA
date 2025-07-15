@@ -342,13 +342,13 @@ def main():
             
         
     eval_utils.eval_final_results(result_stat,
-                                opt.model_dir, opt.loss, opt.attack_mode, iter=opt.iter, lr=opt.lr)
+                                opt.model_dir, opt.loss, f'{opt.attack_mode}_defense_{defense}', iter=opt.iter, lr=opt.lr)
 
     stat_pd = pd.DataFrame(number_stat)
-    result_name = os.path.join(opt.model_dir, '{}_result_iter{}_lr{}_loss{}_defense_{}.txt'.format(opt.attack_mode, opt.iter, opt.lr, opt.loss, defense))
-    f = open(result_name, "w")
     total_rows = stat_pd.shape[0]
     if opt.attack_mode == 'mor':
+        result_name = os.path.join(opt.model_dir, '{}_result_iter{}_lr{}_loss{}_defense_{}.txt'.format(opt.attack_mode, opt.iter, opt.lr, opt.loss, defense))
+        f = open(result_name, "w")
         with pd.option_context('mode.use_inf_as_na', True):
             asr_0 = (stat_pd['pred'] <= 0).sum() / total_rows
             asr_1 = (stat_pd['pred'] <= 1).sum() / total_rows
@@ -357,14 +357,18 @@ def main():
             print(result)
             f.write(result)
             f.close()
+            df_filename = os.path.join(opt.model_dir, f'det_result_iter{opt.iter}_lr{opt.lr}_{opt.attack_mode}_{opt.loss}_defense_{defense}.csv')
     elif opt.attack_mode == 'tor':
+        result_name = os.path.join(opt.model_dir, f'{opt.attack_mode}_result_visibility_{opt.target_id}_iter{opt.iter}_lr{opt.lr}_loss{opt.loss}_defense_{defense}.txt')
+        f = open(result_name, "w")
         fp_threshold = 2 # We require the attack to not introduce above average FP (2) after attack to minimize suspicion
         asr = ((stat_pd['target_detected'] < 1) & (stat_pd['fp'] < fp_threshold)).sum() / total_rows
         print(f'ASR: {asr}')
         f.write(f'ASR: {asr}')
         f.close()
+        df_filename = os.path.join(opt.model_dir, f'det_result_iter{opt.iter}_lr{opt.lr}_{opt.attack_mode}_visibility_{opt.target_id}_{opt.loss}_defense_{defense}.csv')
 
-    df_filename = os.path.join(opt.model_dir, f'det_result_iter{opt.iter}_lr{opt.lr}_{opt.attack_mode}_{opt.loss}_defense_{defense}.csv')
+    
     stat_pd.to_csv(df_filename, index=False)
 
     print(f"Results saved to {result_name} and {df_filename}")
